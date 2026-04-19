@@ -7,8 +7,33 @@ app.use(express.json());
 
 // Connect to MongoDB directly
 mongoose.connect('mongodb://localhost:27017/projet_cc2')
-  .then(() => console.log('MongoDB Connected'))
+  .then(async () => {
+    console.log('MongoDB Connected');
+    
+    // Auto-seed some data if empty
+    const Client = require('./models/Client');
+    if ((await Client.countDocuments()) === 0) {
+      await Client.create({
+        nomComplet: "Test User",
+        email: "test@test.com",
+        telephone: "000000000",
+        ville: "Test City"
+      });
+      console.log('Dummy data seeded! The routes will now return something.');
+    }
+  })
   .catch(err => console.log(err));
+
+app.get('/', (req, res) => {
+  res.json({ 
+    message: "Bienvenue sur l'API REST", 
+    routes: [
+      "/api/clients",
+      "/api/products",
+      "/api/orders"
+    ] 
+  });
+});
 
 // Load routers
 const clients = require('./routes/clientRoutes');
