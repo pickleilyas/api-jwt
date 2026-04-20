@@ -6,18 +6,20 @@ const {
   updateOrder,
   deleteOrder
 } = require('../controllers/orderController');
+const { protect } = require('../middleware/authMiddleware');
+const { authorize } = require('../middleware/permissionMiddleware');
 
 const router = express.Router();
 
 router
   .route('/')
-  .get(getOrders)
-  .post(createOrder);
+  .get(protect, authorize('orders', 'read'), getOrders)
+  .post(protect, authorize('orders', 'create'), createOrder);
 
 router
   .route('/:id')
-  .get(getOrder)
-  .put(updateOrder)
-  .delete(deleteOrder);
+  .get(protect, authorize('orders', 'read'), getOrder)
+  .put(protect, authorize('orders', 'update'), updateOrder)
+  .delete(protect, authorize('orders', 'delete'), deleteOrder);
 
 module.exports = router;
